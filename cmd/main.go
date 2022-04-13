@@ -203,8 +203,6 @@ func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err := http.Serve(h.onion, http.FileServer(http.Dir(h.serveDir)))
-	if err != nil {
-		log.Errorf("failed to serve: %w", err)
-	}
+	handler := http.FileServer(http.Dir(h.serveDir))
+	handler.ServeHTTP(w, r)
 }

@@ -1,6 +1,6 @@
 # hidden service server
 
-A CLI that will host a static website as a hidden service.
+A CLI that will host a static website as a .onion hidden service.
 
 ## Requirements
 
@@ -38,7 +38,7 @@ $ 2022-04-13T10:44:44.217-0400	INFO	cmd	cmd/main.go:153	Open Tor browser and nav
 If you have run the CLI before and have a server private key already (by default stored in `service.key`), you can pass it to the CLI so that the .onion address used will be the same as before.
 
 ```bash
-./onioncli --private-key=service.key --serve-dir ~/my-website/
+./onioncli --private-key=service.key --serve-dir ~/my-website
 ```
 
 You can also turn on debug logs with `--log=debug`.

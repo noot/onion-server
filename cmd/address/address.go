@@ -1,14 +1,10 @@
 // Code based off gist: https://gist.github.com/wybiral/8f737644fc140c97b6b26c13b1409837
 
-package address
+package main
 
 import (
 	"crypto/rand"
-	"crypto/sha512"
 	"encoding/base32"
-	"encoding/base64"
-	"encoding/hex"
-	"fmt"
 	"golang.org/x/crypto/ed25519"
 	"golang.org/x/crypto/sha3"
 	"strings"
@@ -21,25 +17,13 @@ const version = byte(0x03)
 const salt = ".onion checksum"
 
 // Generate returns an address corresponding to the given private key (without the .onion)
-func Generate() (string, ed25519.PrivateKey, error) {
+func GenerateAddress() (string, ed25519.PrivateKey, error) {
 	pub, priv, err := ed25519.GenerateKey(rand.Reader)
 	if err != nil {
 		return "", nil, err
 	}
-	fmt.Printf("%s\t%s", getServiceID(pub)+".onion", hex.EncodeToString(priv))
-	//fmt.Println("Private Key:", expandKey(pri))
-	return getServiceID(pub), priv, nil
-}
 
-// Expand ed25519.PrivateKey to (a || RH) form, return base64
-func expandKey(pri ed25519.PrivateKey) string {
-	h := sha512.Sum512(pri[:32])
-	// Set bits so that h[:32] is private scalar "a"
-	h[0] &= 248
-	h[31] &= 127
-	h[31] |= 64
-	// Since h[32:] is RH, h is now (a || RH)
-	return base64.StdEncoding.EncodeToString(h[:])
+	return getServiceID(pub), priv, nil
 }
 
 func getCheckdigits(pub ed25519.PublicKey) []byte {

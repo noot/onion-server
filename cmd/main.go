@@ -11,8 +11,9 @@ import (
 	"path/filepath"
 	"time"
 
+	"golang.org/x/crypto/ed25519"
+
 	"github.com/cretz/bine/tor"
-	"github.com/cretz/bine/torutil/ed25519"
 	logging "github.com/ipfs/go-log"
 	"github.com/urfave/cli/v2"
 )
@@ -68,18 +69,18 @@ func getPrivateKey(c *cli.Context) (ed25519.PrivateKey, error) {
 	}
 
 	log.Debugf("generating new private key and writing to file %s", defaultPrivateKeyFile)
-	pk, err := ed25519.GenerateKey(rand.Reader)
+	_, pk, err := ed25519.GenerateKey(rand.Reader)
 	if err != nil {
 		return nil, err
 	}
 
-	pkStr := hex.EncodeToString(pk.PrivateKey())
+	pkStr := hex.EncodeToString(pk)
 	err = ioutil.WriteFile(defaultPrivateKeyFile, []byte(pkStr), os.ModePerm)
 	if err != nil {
 		return nil, err
 	}
 
-	return pk.PrivateKey(), nil
+	return pk, nil
 }
 
 func setLogLevel(c *cli.Context) error {
@@ -147,7 +148,7 @@ func run(c *cli.Context) error {
 	onion, err := t.Listen(listenCtx, &tor.ListenConf{
 		Version3:    true,
 		RemotePorts: []int{80},
-		Key:         pk.KeyPair(),
+		Key:         pk,
 	})
 	if err != nil {
 		return fmt.Errorf("unable to create onion service: %w", err)

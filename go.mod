@@ -1,4 +1,4 @@
-module github.com/noot/tor-fun
+module github.com/noot/onion-service
 
 go 1.17
 

@@ -2,6 +2,8 @@
 
 A CLI that will host a static website as a .onion hidden service.
 
+Comes with an additional binary that can be used to generate vanity .onion addresses.
+
 ## Requirements
 
 - go1.17
@@ -15,10 +17,10 @@ A CLI that will host a static website as a .onion hidden service.
 ### Build
 
 ```
-cd cmd/ && go build -o onioncli && mv onioncli .. && cd ..
+make build
 ```
 
-This places the binary `onioncli` in the project root.
+This places the binaries `onioncli` and `onionaddress` in the project root.
 
 ### Run
 
@@ -42,3 +44,14 @@ If you have run the CLI before and have a server private key already (by default
 ```
 
 You can also turn on debug logs with `--log=debug`.
+
+#### Vanity addresses
+
+To find a vanity address and its private key:
+```bash
+./onionaddress --prefix <some-prefix> --count=3
+```
+
+This will serach for and print 3 .onion addresses with the given prefix and their corresponding private keys. The private keys can be used with `onioncli --private-key=<keyfile>`.
+
+Note: for 4-letter prefixes and less, this process is quite quick. For 5-letter prefixes, it took around ~30 minutes on my machine to find 1 address, and this grows exponentially the longer the prefix gets.

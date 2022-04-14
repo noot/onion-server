@@ -8,7 +8,8 @@ Comes with an additional binary that can be used to generate vanity .onion addre
 
 - go1.17
 - tor 0.4.x
-	- download source here https://www.torproject.org/download/tor/
+	- download source here https://www.torproject.org/download/tor/ or `wget https://dist.torproject.org/tor-0.4.6.10.tar.gz`
+	- download additional dependencies: `sudo apt install libevent-dev libssl-dev zlib1g zlib1g-dev -y`
 	- extract files (`tar -xzf`) and navigate to directory 
 	- `./configure && make && sudo make install`. Check that tor is installed with `tor --version`.
 
@@ -52,6 +53,6 @@ To find a vanity address and its private key:
 ./onionaddress --prefix <some-prefix> --count=3
 ```
 
-This will serach for and print 3 .onion addresses with the given prefix and their corresponding private keys. The private keys can be used with `onioncli --private-key=<keyfile>`.
+This will search for and print 3 .onion addresses with the given prefix and their corresponding private keys. The private keys can be used with `onioncli --private-key=<keyfile>`.
 
-Note: for 4-letter prefixes and less, this process is quite quick. For 5-letter prefixes, it took around ~30 minutes on my machine to find 1 address, and this grows exponentially the longer the prefix gets.
+Note: for 4-letter prefixes and less, this process is quite quick. For 5-letter prefixes, it took around ~30 minutes on my machine to find 1 address, for a 6-letter prefix, it took ~90 minutes. This grows exponentially the longer the prefix gets.

@@ -4,6 +4,7 @@ import (
 	"encoding/hex"
 	"fmt"
 	"os"
+	"sync"
 	"time"
 
 	"github.com/urfave/cli/v2"
@@ -60,25 +61,45 @@ func run(c *cli.Context) error {
 		max = ^uint64(0)
 	}
 
+	grs := int(c.Uint("grs"))
+	if grs == 0 {
+		grs = 1
+	}
+
 	start := time.Now()
 
 	var found uint
-	for i := uint64(0); i < max; i++ {
-		addr, priv, err := GenerateAddress()
-		if err != nil {
-			return err
-		}
+	var wg sync.WaitGroup
+	var mu sync.Mutex
 
-		if addr[:len(prefix)] != prefix {
-			continue
-		}
+	wg.Add(grs)
 
-		fmt.Fprintf(os.Stdout, "%s.onion\t%s\n", addr, hex.EncodeToString(priv))
-		found++
-		if found == count && count != 0 {
-			break
-		}
+	for i := 0; i < grs; i++ {
+		go func() {
+			defer wg.Done()
+			for j := uint64(0); j < max; j++ {
+				if found >= count && count != 0 {
+					break
+				}
+
+				addr, priv, err := GenerateAddress()
+				if err != nil {
+					continue
+				}
+
+				if addr[:len(prefix)] != prefix {
+					continue
+				}
+
+				mu.Lock()
+				fmt.Fprintf(os.Stdout, "%d %s.onion\t%s\n", found, addr, hex.EncodeToString(priv))
+				found++
+				mu.Unlock()
+			}
+		}()
 	}
+
+	wg.Wait()
 
 	duration := time.Since(start)
 	fmt.Printf("duration: %dms\n", duration.Milliseconds())

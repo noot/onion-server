@@ -58,7 +58,7 @@ func getPrivateKey(c *cli.Context) (ed25519.PrivateKey, error) {
 		}
 
 		pkStr := string(pkHexBytes)
-		if len(pkStr) != ed25519.PrivateKeySize*2 {
+		if len(pkStr) < ed25519.PrivateKeySize*2 {
 			return nil, fmt.Errorf("invalid private key string size: got %d, expected %d", len(pkStr), ed25519.PrivateKeySize*2)
 		}
 

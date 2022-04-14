@@ -25,6 +25,8 @@ const (
 var log = logging.Logger("cmd")
 
 var app = &cli.App{
+	Name:  "onioncli",
+	Usage: "host a static website as a .onion.\n\tExample usage:\n\t$ ./onioncli --serve-dir ~/my-website",
 	Flags: []cli.Flag{
 		&cli.StringFlag{
 			Name:  "datadir",
@@ -114,7 +116,7 @@ func run(c *cli.Context) error {
 
 	serveDir := c.String("serve-dir")
 	if serveDir == "" {
-		return fmt.Errorf("must provide --serve-dir (static website to serve)")
+		return fmt.Errorf("must provide --serve-dir (path to static website to serve)")
 	}
 
 	log.Info("Starting and registering onion service, please wait...")

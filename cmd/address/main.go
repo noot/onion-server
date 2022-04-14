@@ -10,22 +10,16 @@ import (
 )
 
 var app = &cli.App{
+	Name:  "onionaddress",
+	Usage: "vanity onion address generator. for example, to find 5 addresses with the prefix \"fun\":\n\t$ ./onionaddress --prefix fun --count=5",
 	Flags: []cli.Flag{
-		&cli.StringFlag{
-			Name:  "output",
-			Usage: "output file. if empty, writes to stdout",
-		},
 		&cli.StringFlag{
 			Name:  "prefix",
 			Usage: "designated prefix to search for",
 		},
 		&cli.UintFlag{
-			Name:  "duration",
-			Usage: "duration of time in seconds for which to search for addresses; unbounded if left empty",
-		},
-		&cli.UintFlag{
 			Name:  "max",
-			Usage: "maximum number of iterations per goroutine; if this is set, duration is ignored. default=65536",
+			Usage: "maximum number of iterations per goroutine; if --count is set, this is ignored. default=65536",
 		},
 		&cli.UintFlag{
 			Name:  "grs",
@@ -33,7 +27,11 @@ var app = &cli.App{
 		},
 		&cli.UintFlag{
 			Name:  "count",
-			Usage: "how many addresses with the matching prefix to find. if set, ignores other options and runs until that many addresses are found",
+			Usage: "how many addresses with the matching prefix to find. if set, ignores --max and runs until that many addresses are found",
+		},
+		&cli.BoolFlag{
+			Name:  "no-prefix",
+			Usage: "don't search for a specific prefix, but print all addresses and keys found",
 		},
 	},
 	Action: run,
@@ -53,6 +51,10 @@ func run(c *cli.Context) error {
 	}
 
 	prefix := c.String("prefix")
+	if len(prefix) == 0 && !c.Bool("no-prefix") {
+		return fmt.Errorf("must provide --prefix; if no prefix is desired, use the --no-prefix option")
+	}
+
 	count := c.Uint("count")
 	if count != 0 {
 		max = ^uint64(0)

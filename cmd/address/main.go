@@ -4,6 +4,7 @@ import (
 	"encoding/hex"
 	"fmt"
 	"os"
+	"regexp"
 	"sync"
 	"time"
 
@@ -17,6 +18,10 @@ var app = &cli.App{
 		&cli.StringFlag{
 			Name:  "prefix",
 			Usage: "designated prefix to search for",
+		},
+		&cli.StringFlag{
+			Name:  "regex",
+			Usage: "regex to match for; if this is set, --prefix is ignored. eg: to find address that are prefixed with either \"pea\" or \"noo\":\n\t$ ./onionaddress --regex --regex=^\\(pea\\|noo\\)\\(.*\\) --count 5",
 		},
 		&cli.UintFlag{
 			Name:  "max",
@@ -51,9 +56,10 @@ func run(c *cli.Context) error {
 		max = 65536
 	}
 
+	regex := c.String("regex")
 	prefix := c.String("prefix")
-	if len(prefix) == 0 && !c.Bool("no-prefix") {
-		return fmt.Errorf("must provide --prefix; if no prefix is desired, use the --no-prefix option")
+	if len(prefix) == 0 && !c.Bool("no-prefix") && regex == "" {
+		return fmt.Errorf("must provide --prefix or --regex; if no prefix is desired, use the --no-prefix option")
 	}
 
 	count := c.Uint("count")
@@ -87,7 +93,16 @@ func run(c *cli.Context) error {
 					continue
 				}
 
-				if addr[:len(prefix)] != prefix {
+				if regex != "" {
+					matched, err := regexp.Match(regex, []byte(addr))
+					if err != nil {
+						continue
+					}
+
+					if !matched {
+						continue
+					}
+				} else if addr[:len(prefix)] != prefix {
 					continue
 				}
 

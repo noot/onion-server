@@ -8,7 +8,9 @@ import (
 	"io/ioutil"
 	"net/http"
 	"os"
+	"os/signal"
 	"path/filepath"
+	"syscall"
 	"time"
 
 	"golang.org/x/crypto/ed25519"
@@ -162,7 +164,7 @@ func run(c *cli.Context) error {
 	defer onion.Close()
 
 	log.Infof("Open Tor browser and navigate to http://%v.onion\n", onion.ID)
-	log.Infof("Press enter to exit")
+	log.Infof("Press ctrl+c to exit")
 
 	// Serve the current folder from HTTP
 	errCh := make(chan error, 1)
@@ -172,7 +174,10 @@ func run(c *cli.Context) error {
 
 	// End when enter is pressed
 	go func() {
-		fmt.Scanln()
+		sigc := make(chan os.Signal, 1)
+		signal.Notify(sigc, syscall.SIGINT, syscall.SIGTERM)
+		defer signal.Stop(sigc)
+		<-sigc
 		errCh <- nil
 	}()
 
